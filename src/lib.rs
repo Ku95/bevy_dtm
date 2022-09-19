@@ -4,7 +4,7 @@ use bevy::{
     prelude::*,
     render::render_resource::{Extent3d, TextureDimension, TextureFormat},
 };
-use bytemuck::{cast_slice, cast_vec};
+use bytemuck::cast_slice;
 use dtm::DTM;
 
 struct DTMAssetLoader;
@@ -19,6 +19,18 @@ impl AssetLoader for DTMAssetLoader {
             let (descriptor, pixels) = DTM::decode_alloc(bytes)?;
             let data = Vec::from(cast_slice(&pixels)); // todo: eliminate this copy ?
 
+            let format = match descriptor.channel_count {
+                1 => TextureFormat::R16Unorm,
+                2 => TextureFormat::Rg16Unorm,
+                3 => {
+                    return Err(anyhow!(
+                        "Can not load image: 3 channel images are not supported."
+                    ))
+                }
+                4 => TextureFormat::Rgba16Unorm,
+                _ => return Err(anyhow!("Can not load image: invalid channel count.")),
+            };
+
             load_context.set_default_asset(LoadedAsset::new(Image::new(
                 Extent3d {
                     width: descriptor.width as u32,
@@ -27,17 +39,7 @@ impl AssetLoader for DTMAssetLoader {
                 },
                 TextureDimension::D2,
                 data,
-                match descriptor.channel_count {
-                    1 => TextureFormat::R16Unorm,
-                    2 => TextureFormat::Rg16Unorm,
-                    3 => {
-                        return Err(anyhow!(
-                            "Can not load image: 3 channel images are not supported."
-                        ))
-                    }
-                    4 => TextureFormat::Rgba16Unorm,
-                    _ => return Err(anyhow!("Can not load image: invalid channel count.")),
-                },
+                format,
             )));
 
             Ok(())
@@ -49,7 +51,7 @@ impl AssetLoader for DTMAssetLoader {
     }
 }
 
-/// Plugin that registers the [`DTMAssetLoader`].
+/// Plugin that registers the `DTMAssetLoader`.
 pub struct DTMPlugin;
 
 impl Plugin for DTMPlugin {
