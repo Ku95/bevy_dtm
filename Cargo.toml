@@ -11,6 +11,7 @@ authors = ["Kurt Kühnert <kurt@kuehnert.dev"]
 repository = "https://github.com/ku95/bevy_dtm"
 
 [dependencies]
+# bevy = { git="https://github.com/bevyengine/bevy" }
 bevy = { workspace = true }
 dtm = { git="https://github.com/Ku95/dtm" }
 anyhow = "1.0"
