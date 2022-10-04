@@ -13,6 +13,6 @@ repository = "https://github.com/ku95/bevy_dtm"
 [dependencies]
 # bevy = { git="https://github.com/bevyengine/bevy" }
 bevy = { workspace = true }
-dtm = { git="https://github.com/Ku95/dtm" }
+dtm = { path="../dtm" }
 anyhow = "1.0"
 bytemuck = "1.12"
